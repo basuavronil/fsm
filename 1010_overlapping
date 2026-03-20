@@ -1,0 +1,38 @@
+module dut(
+    input  clk,  rst, in,
+    output detect
+);
+
+    parameter S0 = 2'b00,
+              S1 = 2'b01,
+              S2 = 2'b10,
+              S3 = 2'b11;
+
+    reg [1:0] state, next_state;
+
+    always @(posedge clk or negedge rst) begin
+        if (!rst)
+            state <= S0;
+        else
+            state <= next_state;
+    end
+
+    always @(state or in) begin
+        case (state)
+            S0: begin
+                next_state = in ? S1 : S0;
+            end
+            S1: begin
+                next_state = in ? S1 : S2;
+            end
+            S2: begin
+                next_state = in ? S3 : S0;
+            end
+            S3: begin
+                next_state = in ? S1 : S2;
+            end
+            default: next_state = S0;
+        endcase
+    end
+    assign detect = ((state == S3) & (in == 0))? 1:0; 
+endmodule
